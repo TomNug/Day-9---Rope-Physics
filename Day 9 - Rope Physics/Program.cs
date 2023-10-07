@@ -107,10 +107,11 @@ class Program
         Console.WriteLine(String.Format("NNW: H(0,1), T(2,2) -> ({0},{1}) <(1,1)>", result.Item1, result.Item2));
 
     }
-    public static void ExecuteInstruction(char[,] grid, ref (int,int)headRowCol, ref (int,int)tailRowCol, string dir, int dist)
+    public static void ExecuteInstruction(char[,] grid, ref (int,int)headRowCol, ref (int,int)tailRowCol, string dir, int dist, HashSet<(int, int)> visitedElements)
     {
         // diagnosis
-        Console.WriteLine(String.Format("Executing {0} {1}", dir, dist));
+        //Console.WriteLine(String.Format("Executing {0} {1}", dir, dist));
+        
         // Execute an up 5 command as up 1 up 1 up 1 up 1 up 1
         for (int rep = 0; rep < dist; rep++)
         {
@@ -119,7 +120,7 @@ class Program
             grid[headRowCol.Item1, headRowCol.Item2] = '.';
             grid[tailRowCol.Item1, tailRowCol.Item2] = '.';
 
-            Console.WriteLine(String.Format("{0} {1}", dir, rep + 1));
+            //Console.WriteLine(String.Format("{0} {1}", dir, rep + 1));
 
             // Determine new position of the head
             if (dir == "U")
@@ -139,9 +140,12 @@ class Program
 
             // Have the tail follow the head
             tailRowCol = Follow(headRowCol, tailRowCol);
-            
+
+            // Add the new location to the set to mark it visited
+            visitedElements.Add(tailRowCol);
+
             // Display the changed grid
-            DisplayGrid(grid, headRowCol, tailRowCol);
+            //DisplayGrid(grid, headRowCol, tailRowCol);
         }
     }
     public static void Main(string[] args)
@@ -153,27 +157,30 @@ class Program
                     {'.','.','.','.','.','.'},
                     {'.','.','.','.','.','.'}
         };
-        Tests();
+        //Tests();
 
         string[] movs = System.IO.File.ReadAllLines(@"C:\Users\Tom\Documents\Advent\Day 9 - Rope Physics\Day 9 - Rope Physics\data_test.txt");
         //string[] rows = System.IO.File.ReadAllLines(@"C:\Users\Tom\Documents\Advent\Day 8 - Tree Heights\Day 8 - Tree Heights\data_full.txt");
 
-
+        // Initial locations of head and tail
         (int, int) headRowCol = (grid.GetLength(0) - 1, 0);
         (int, int) tailRowCol = (grid.GetLength(0) - 1, 0);
 
-        // Initial locations of head and tail
-        
-        DisplayGrid(grid, headRowCol, tailRowCol);
+        // Set will collect unique elements visited by the tail
+        HashSet<(int, int)> visitedElements = new HashSet<(int, int)>();
+
+        // Add the starting location to the set to mark it visited
+        visitedElements.Add(tailRowCol);
 
         foreach (string mov in movs)
         {
             string[] splitMov = mov.Split(" ");
             string dir = splitMov[0];
             int dist = int.Parse(splitMov[1]);
-            ExecuteInstruction(grid, ref headRowCol, ref tailRowCol, dir, dist);
+            ExecuteInstruction(grid, ref headRowCol, ref tailRowCol, dir, dist, visitedElements);
 
         }
+        Console.WriteLine(String.Format("Visited {0} elements", visitedElements.Count));
 
     }
 
