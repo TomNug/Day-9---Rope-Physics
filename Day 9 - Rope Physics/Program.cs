@@ -155,7 +155,7 @@ class Program
                 // Have the tail follow the head
                 rope[i] = Follow(rope[i-1], rope[i]);
             }
-            DisplayRope(rope);
+            //DisplayRope(rope);
 
             // Add the new location to the set to mark it visited
             visitedElements.Add(rope[rope.Length - 1]);
@@ -176,10 +176,10 @@ class Program
         Tests();
 
         // Test data following example on webpage
-        string[] movs = System.IO.File.ReadAllLines(@"C:\Users\Tom\Documents\Advent\Day 9 - Rope Physics\Day 9 - Rope Physics\data_test.txt");
+        //string[] movs = System.IO.File.ReadAllLines(@"C:\Users\Tom\Documents\Advent\Day 9 - Rope Physics\Day 9 - Rope Physics\data_test.txt");
         
         // Full data set for challenge
-        //string[] movs = System.IO.File.ReadAllLines(@"C:\Users\Tom\Documents\Advent\Day 9 - Rope Physics\Day 9 - Rope Physics\data_full.txt");
+        string[] movs = System.IO.File.ReadAllLines(@"C:\Users\Tom\Documents\Advent\Day 9 - Rope Physics\Day 9 - Rope Physics\data_full.txt");
 
         
 
