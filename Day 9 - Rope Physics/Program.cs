@@ -29,10 +29,14 @@ class Program
                     newRowCol.Item1 += rowDiff;
                     newRowCol.Item2 += colDiff / 2;
                 }
-                else
+                else if (Math.Abs(colDiff) == 1)
                 {
                     newRowCol.Item1 += rowDiff / 2;
                     newRowCol.Item2 += colDiff;
+                } else
+                {
+                    newRowCol.Item1 += rowDiff / 2; 
+                    newRowCol.Item2 += colDiff / 2;
                 }
             }
         }
@@ -91,66 +95,106 @@ class Program
         Console.WriteLine(String.Format("NNW: H(0,1), T(2,2) -> ({0},{1}) <(1,1)>", result.Item1, result.Item2));
 
     }
-    public static void ExecuteInstruction(ref (int,int) headCoord, ref (int,int) tailCoord, string dir, int dist, HashSet<(int, int)> visitedElements)
+    public static void DisplayRope((int, int)[] rope)
+    {
+        char[,] grid = new char[5, 6]
+        {
+            {'.','.','.','.','.','.'},
+            {'.','.','.','.','.','.'},
+            {'.','.','.','.','.','.'},
+            {'.','.','.','.','.','.'},
+            {'.','.','.','.','.','.'}
+        };
+        
+        for (int i= rope.Length - 1; i>0; i--)
+        {
+            grid[rope[i].Item2, rope[i].Item1] = (char)(i + '0');
+        }
+        grid[rope[0].Item2, rope[0].Item1] = 'H';
+        for (int row = grid.GetLength(0) - 1; row >= 0 ; row--)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            for (int col = 0; col < grid.GetLength(1); col++)
+            {
+                sb.Append(grid[row, col]);
+            }
+            Console.WriteLine(sb.ToString());
+        }
+
+    }
+    public static void ExecuteInstruction((int, int)[] rope, string dir, int dist, HashSet<(int, int)> visitedElements)
     {
         // diagnosis
-        //Console.WriteLine(String.Format("===========================================\nExecuting {0} {1}", dir, dist));
+        Console.WriteLine(String.Format("===========================================\nExecuting {0} {1}", dir, dist));
         
         // Execute an up 5 command as up 1 up 1 up 1 up 1 up 1
         for (int rep = 0; rep < dist; rep++)
         {
-            //Console.WriteLine(String.Format("{0} {1}", dir, rep + 1));
+            Console.WriteLine();
 
             // Determine new position of the head
             if (dir == "U")
             {
-                headCoord.Item2++;
+                rope[0].Item2++;
             } else if (dir == "D")
             {
-                headCoord.Item2--;
+                rope[0].Item2--;
             } else if (dir == "L")
             {
-                headCoord.Item1--;
+                rope[0].Item1--;
             }
             else if (dir == "R")
             {
-                headCoord.Item1++;
+                rope[0].Item1++;
             }
 
-            // Have the tail follow the head
-            tailCoord = Follow(headCoord, tailCoord);
+            // Have each element of the rope follow the preceding element
+            for (int i = 1; i < rope.Length; i++)
+            {
+                // Have the tail follow the head
+                rope[i] = Follow(rope[i-1], rope[i]);
+            }
+            DisplayRope(rope);
 
             // Add the new location to the set to mark it visited
-            visitedElements.Add(tailCoord);
+            visitedElements.Add(rope[rope.Length - 1]);
         }
         //Console.ReadLine();
     }
     public static void Main(string[] args)
     {
+
+        (int, int)[] rope = new (int, int)[10];
+        // Initial locations of head and tail
+        (int, int) startCoord = (0, 0);
+        for (int i = 0; i < 10; i++)
+        {
+            rope[i] = startCoord;
+        }
+
         Tests();
 
         // Test data following example on webpage
-        //string[] movs = System.IO.File.ReadAllLines(@"C:\Users\Tom\Documents\Advent\Day 9 - Rope Physics\Day 9 - Rope Physics\data_test.txt");
+        string[] movs = System.IO.File.ReadAllLines(@"C:\Users\Tom\Documents\Advent\Day 9 - Rope Physics\Day 9 - Rope Physics\data_test.txt");
         
         // Full data set for challenge
-        string[] movs = System.IO.File.ReadAllLines(@"C:\Users\Tom\Documents\Advent\Day 9 - Rope Physics\Day 9 - Rope Physics\data_full.txt");
+        //string[] movs = System.IO.File.ReadAllLines(@"C:\Users\Tom\Documents\Advent\Day 9 - Rope Physics\Day 9 - Rope Physics\data_full.txt");
 
-        // Initial locations of head and tail
-        (int, int) headCoord = (0,0);
-        (int, int) tailCoord = (0,0);
+        
 
         // Set will collect unique elements visited by the tail
         HashSet<(int, int)> visitedElements = new HashSet<(int, int)>();
 
         // Add the starting location to the set to mark it visited
-        visitedElements.Add(tailCoord);
+        //visitedElements.Add(tailCoord);
 
         foreach (string mov in movs)
         {
             string[] splitMov = mov.Split(" ");
             string dir = splitMov[0];
             int dist = int.Parse(splitMov[1]);
-            ExecuteInstruction(ref headCoord, ref tailCoord, dir, dist, visitedElements);
+            ExecuteInstruction(rope, dir, dist, visitedElements);
 
         }
 
